@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Website Security Dashboard</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet"
+            href="{{ url_for('static', filename='style.css') }}">
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
+    </head>
+    <body>
+
+        <header>
+            <h1>Website Security Dashboard</h1>
+        </header>
+
+        <header
+            style="display:flex; justify-content:space-between; align-items:center;">
+            <h1>Website Security Dashboard</h1>
+
+            <div>
+                <a href="/history-page">
+                    <button>History</button>
+                </a>
+
+                <a href="/logout">
+                    <button style="background:red; color:white;">Logout</button>
+                </a>
+            </div>
+        </header>
+
+        <!-- Scanner Form -->
+        <section class="scanner-form">
+            <input type="text" id="targetInput"
+                placeholder="Enter Domain or IP">
+            <button id="runScanBtn">Run Scan</button>
+        </section>
+
+        <!-- Dynamic Scan Results -->
+        <section id="scan-results-section">
+            <div id="scan-result"></div>
+        </section>
+
+        <!-- Dashboard Summary -->
+        <section class="dashboard">
+            <div class="card full-width" id="report-summary">
+                <h2>Report Summary</h2>
+                <p>All findings will appear here in structured format.</p>
+                <button class="download-btn" id="downloadBtn">Download PDF
+                    Report</button>
+            </div>
+        </section>
+
+        <footer>
+            <p>© 2026 Security Dashboard</p>
+        </footer>
+
+        <!-- Script -->
+
+    </body>
+</html>
