@@ -18,6 +18,7 @@ import json
 from reportlab.platypus import Table, TableStyle
 from reportlab.lib import colors
 from flask import session, redirect, url_for
+import psycopg2.extras
 
 app = Flask(__name__)
 CORS(app)
@@ -310,20 +311,20 @@ def detect_ads(domain):
     return list(set(findings))
 
 # PDF REPORT (FIXED SECTION)
-
 def save_scan(data):
     conn = get_db_connection()
     cur = conn.cursor()
 
     query = """
     INSERT INTO scan_history (
-        target, ip, website_status, detected_os, ssl_expiry,
+        username, target, ip, website_status, detected_os, ssl_expiry,
         domain_creation, open_ports, missing_headers,
         hidden_dirs, cookie_issues, ad_results, cves
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
 
     cur.execute(query, (
+        session.get("user"),   # ✅ ADD THIS
         data["target"],
         data["ip"],
         data["website_status"],
@@ -341,7 +342,6 @@ def save_scan(data):
     conn.commit()
     cur.close()
     conn.close()
-
 
 def generate_pdf(target, ip, open_ports, missing_headers,
                  ssl_expiry, cves, detected_os,
@@ -597,7 +597,9 @@ def get_history():
         return jsonify({"error": "Unauthorized"}), 401
 
     conn = get_db_connection()
-    cur = conn.cursor()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+
+    # cur = conn.cursor()
 
     cur.execute(
         "SELECT * FROM scan_history WHERE username = %s ORDER BY created_at DESC",
@@ -609,21 +611,21 @@ def get_history():
     result = []
     for row in rows:
         result.append({
-            "id": row[0],
-            "username": row[1],   # shifted index
-            "target": row[2],
-            "ip": row[3],
-            "website_status": row[4],
-            "detected_os": row[5],
-            "ssl_expiry": row[6],
-            "domain_creation": row[7],
-            "open_ports": row[8],
-            "missing_headers": row[9],
-            "hidden_dirs": row[10],
-            "cookie_issues": row[11],
-            "ad_results": row[12],
-            "cves": row[13],
-            "created_at": row[14]
+            "id": row["id"],
+            "username": row["username"],
+            "target": row["target"],
+            "ip": row["ip"],
+            "website_status": row["website_status"],
+            "detected_os": row["detected_os"],
+            "ssl_expiry": row["ssl_expiry"],
+            "domain_creation": row["domain_creation"],
+            "open_ports": row["open_ports"],
+            "missing_headers": row["missing_headers"],
+            "hidden_dirs": row["hidden_dirs"],
+            "cookie_issues": row["cookie_issues"],
+            "ad_results": row["ad_results"],
+            "cves": row["cves"],
+            "created_at": row["created_at"]
         })
 
     cur.close()
